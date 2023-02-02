@@ -42,21 +42,19 @@ if [ -d "${PREFIX}/share/${directory}" ]; then
 	exit 1
 fi
 printf "\n\e[34m[\e[32m*\e[34m]\e[36m Downloading ${distribution}, please wait...\e[34m\n\n"
-tarball="${TMPDIR}/rootfs.tar.xz"
-rm -f "${tarball}"
+mkdir -p "${PREFIX}/share/${directory}/rootfs"
+tarball="${PREFIX}/share/${directory}/rootfs.tar.xz"
 if ! curl --location --output "${tarball}" \
 	"https://raw.githubusercontent.com/debuerreotype/docker-debian-artifacts/dist-${arch}/${version}/rootfs.tar.xz"; then
 	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
-	rm -f "${tarball}"
+	rm -f "${PREFIX}/share/${directory}"
 	exit 1
 fi
 printf "\e[0m\n\e[34m[\e[32m*\e[34m]\e[36m Installing ${distribution}, please wait...\e[0m\n"
-mkdir -p "${PREFIX}/share/${directory}/rootfs"
 if ! proot --link2symlink \
 	tar -xf "${tarball}" --directory="${PREFIX}/share/${directory}/rootfs" --exclude='dev' > /dev/null 2>&1; then
 	printf "\e[34m[\e[31m!\e[34m]\e[31m Installation failed, please check version code name.\e[0m\n\n"
 	rm -rf "${PREFIX}/share/${directory}"
-	rm -f "${tarball}"
 	exit 1
 fi
 rm -f "${tarball}"
