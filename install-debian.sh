@@ -47,7 +47,7 @@ printf "\n\e[34m[\e[32m*\e[34m]\e[36m Downloading ${distribution}, please wait..
 if ! curl --location --output "${tarball}" \
 	"https://raw.githubusercontent.com/debuerreotype/docker-debian-artifacts/dist-${arch}/${version}/rootfs.tar.xz"; then
 	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
-	rm -f "${PREFIX}/share/${directory}"
+	rm -rf "${PREFIX}/share/${directory}"
 	exit 1
 fi
 printf "\e[0m\n\e[34m[\e[32m*\e[34m]\e[36m Installing ${distribution}, please wait...\e[0m\n"
