@@ -47,7 +47,6 @@ if ! curl --location --output "${tarball}" \
 	exit 1
 fi
 printf "\e[0m\n\e[34m[\e[32m*\e[34m]\e[36m Installing ${distribution}, please wait...\e[0m\n"
-mkdir -p "${PREFIX}/share/${directory}/rootfs"
 if ! proot --link2symlink \
 	tar -xf "${tarball}" --directory="${PREFIX}/share/${directory}/rootfs" --exclude='dev' > /dev/null 2>&1; then
 	printf "\e[34m[\e[31m!\e[34m]\e[31m Installation failed, please check version code name.\e[0m\n\n"
