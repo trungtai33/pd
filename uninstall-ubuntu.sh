@@ -13,12 +13,12 @@ if [ -z "${version}" ]; then
 fi
 directory="ubuntu-${version}"
 distribution="Ubuntu (${version})"
-if [ ! -d "${PREFIX}/share/${directory}" ]; then
+if [ ! -d "${HOME}/.${directory}" ]; then
 	printf "\n\e[31mError: '${distribution}' not found.\e[0m\n\n"
 	exit 1
 else
 	printf "\n\e[34m[\e[32m*\e[34m]\e[36m Uninstalling ${distribution}, please wait...\e[0m\n"
-	rm -rf "${PREFIX}/share/${directory}"
+	rm -rf "${HOME}/.${directory}"
 	rm -f "${PREFIX}/bin/start-${directory}"
 	printf "\e[34m[\e[32m*\e[34m]\e[36m Uninstall finished.\e[0m\n\n"
 fi
