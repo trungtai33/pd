@@ -33,59 +33,59 @@ if [ -z "${version}" ]; then
 fi
 directory="ubuntu-${version}"
 distribution="Ubuntu (${version})"
-if [ -d "${PREFIX}/share/${directory}" ]; then
+if [ -d "${HOME}/.${directory}" ]; then
 	printf "\n\e[31mError: '${distribution}' is already installed.\e[0m\n\n"
 	exit 1
 fi
-mkdir -p "${PREFIX}/share/${directory}/rootfs"
-tarball="${PREFIX}/share/${directory}/rootfs.tar.gz"
+mkdir -p "${HOME}/.${directory}/rootfs"
+tarball="${HOME}/.${directory}/rootfs.tar.gz"
 printf "\n\e[34m[\e[32m*\e[34m]\e[36m Downloading ${distribution}, please wait...\e[34m\n\n"
 if ! curl --location --output "${tarball}" \
 	"https://partner-images.canonical.com/core/${version}/current/ubuntu-${version}-core-cloudimg-${arch}-root.tar.gz"; then
 	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
-	rm -rf "${PREFIX}/share/${directory}"
+	rm -rf "${HOME}/.${directory}"
 	exit 1
 fi
 printf "\e[0m\n\e[34m[\e[32m*\e[34m]\e[36m Installing ${distribution}, please wait...\e[0m\n"
 if ! proot --link2symlink \
-	tar -xf "${tarball}" --directory="${PREFIX}/share/${directory}/rootfs" --exclude='dev' > /dev/null 2>&1; then
+	tar -xf "${tarball}" --directory="${HOME}/.${directory}/rootfs" --exclude='dev' > /dev/null 2>&1; then
 	printf "\e[34m[\e[31m!\e[34m]\e[31m Installation failed, please check version code name.\e[0m\n\n"
-	rm -rf "${PREFIX}/share/${directory}"
+	rm -rf "${HOME}/.${directory}"
 	exit 1
 fi
 rm -f "${tarball}"
-cat <<- EOF > "${PREFIX}/share/${directory}/rootfs/etc/ld.so.preload"
+cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/ld.so.preload"
 	/lib/${multiarch}/libgcc_s.so.1
 	EOF
-cat <<- EOF > "${PREFIX}/share/${directory}/rootfs/etc/profile.d/config.sh"
+cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/profile.d/config.sh"
 	export LANG="C.UTF-8"
 	export MOZ_FAKE_NO_SANDBOX="1"
 	export PULSE_SERVER="127.0.0.1"
 	EOF
-rm -f "${PREFIX}/share/${directory}/rootfs/etc/resolv.conf"
-cat <<- EOF > "${PREFIX}/share/${directory}/rootfs/etc/resolv.conf"
+rm -f "${HOME}/.${directory}/rootfs/etc/resolv.conf"
+cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/resolv.conf"
 	nameserver 8.8.8.8
 	nameserver 8.8.4.4
 	EOF
-rm -f "${PREFIX}/share/${directory}/rootfs/etc/hosts"
-cat <<- EOF > "${PREFIX}/share/${directory}/rootfs/etc/hosts"
+rm -f "${HOME}/.${directory}/rootfs/etc/hosts"
+cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/hosts"
 	127.0.0.1  localhost
 	::1        localhost ip6-localhost ip6-loopback
 	EOF
 while read groupname groupid; do
-	chmod +w "${PREFIX}/share/${directory}/rootfs/etc/group"
-	cat <<- EOF >> "${PREFIX}/share/${directory}/rootfs/etc/group"
+	chmod +w "${HOME}/.${directory}/rootfs/etc/group"
+	cat <<- EOF >> "${HOME}/.${directory}/rootfs/etc/group"
 		${groupname}:x:${groupid}:
 		EOF
-	chmod +w "${PREFIX}/share/${directory}/rootfs/etc/gshadow"
-	cat <<- EOF >> "${PREFIX}/share/${directory}/rootfs/etc/gshadow"
+	chmod +w "${HOME}/.${directory}/rootfs/etc/gshadow"
+	cat <<- EOF >> "${HOME}/.${directory}/rootfs/etc/gshadow"
 		${groupname}:!::
 		EOF
 done < <(paste <(id -Gn | tr ' ' '\n') <(id -G | tr ' ' '\n'))
-cat <<- EOF > "${PREFIX}/share/${directory}/loadavg"
+cat <<- EOF > "${HOME}/.${directory}/loadavg"
 	0.35 0.22 0.15 1/575 7767
 	EOF
-cat <<- EOF > "${PREFIX}/share/${directory}/stat"
+cat <<- EOF > "${HOME}/.${directory}/stat"
 	cpu  265542 13183 24203 611072 152293 68 191340 255 0 0 0
 	cpu0 265542 13183 24203 611072 152293 68 191340 255 0 0 0
 	intr 815181 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -96,10 +96,10 @@ cat <<- EOF > "${PREFIX}/share/${directory}/stat"
 	procs_blocked 0
 	softirq 1857962 55 2536781 34 1723322 8 2457784 5 1914410
 	EOF
-cat <<- EOF > "${PREFIX}/share/${directory}/uptime"
+cat <<- EOF > "${HOME}/.${directory}/uptime"
 	11965.80 11411.22
 	EOF
-cat <<- EOF > "${PREFIX}/share/${directory}/vmstat"
+cat <<- EOF > "${HOME}/.${directory}/vmstat"
 	nr_free_pages 705489
 	nr_alloc_batch 0
 	nr_inactive_anon 1809
@@ -189,10 +189,10 @@ cat <<- EOF > "${PREFIX}/share/${directory}/vmstat"
 	unevictable_pgs_cleared 0
 	unevictable_pgs_stranded 0
 	EOF
-cat <<- EOF > "${PREFIX}/share/${directory}/model"
+cat <<- EOF > "${HOME}/.${directory}/model"
 	$(getprop ro.product.brand) $(getprop ro.product.model)
 	EOF
-cat <<- EOF > "${PREFIX}/share/${directory}/version"
+cat <<- EOF > "${HOME}/.${directory}/version"
 	Linux version $(uname -r) (termux@android) (gcc version 4.9.0 (GCC)) $(uname -v)
 	EOF
 cat <<- EOF > "${PREFIX}/bin/start-${directory}"
@@ -203,7 +203,7 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	cmdline+=" --kill-on-exit"
 	cmdline+=" --link2symlink"
 	cmdline+=" --root-id"
-	cmdline+=" --rootfs=\${PREFIX}/share/${directory}/rootfs"
+	cmdline+=" --rootfs=${HOME}/.${directory}/rootfs"
 	cmdline+=" --bind=/dev"
 	cmdline+=" --bind=/dev/urandom:/dev/random"
 	cmdline+=" --bind=/proc"
@@ -214,22 +214,22 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	cmdline+=" --bind=/sys"
 	cmdline+=" --bind=/storage/emulated/0:/sdcard"
 	cmdline+=" --bind=/data/data/com.termux"
-	cmdline+=" --bind=\${PREFIX}/share/${directory}/rootfs/tmp:/dev/shm"
+	cmdline+=" --bind=${HOME}/.${directory}/rootfs/tmp:/dev/shm"
 	if ! cat /proc/loadavg > /dev/null 2>&1; then
-	        cmdline+=" --bind=\${PREFIX}/share/${directory}/loadavg:/proc/loadavg"
+	        cmdline+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
 	fi
 	if ! cat /proc/stat > /dev/null 2>&1; then
-	        cmdline+=" --bind=\${PREFIX}/share/${directory}/stat:/proc/stat"
+	        cmdline+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
 	fi
 	if ! cat /proc/uptime > /dev/null 2>&1; then
-	        cmdline+=" --bind=\${PREFIX}/share/${directory}/uptime:/proc/uptime"
+	        cmdline+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
 	fi
 	if ! cat /proc/vmstat > /dev/null 2>&1; then
-	        cmdline+=" --bind=\${PREFIX}/share/${directory}/vmstat:/proc/vmstat"
+	        cmdline+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
 	fi
-	cmdline+=" --bind=\${PREFIX}/share/${directory}/model:/sys/firmware/devicetree/base/model"
-	cmdline+=" --bind=\${PREFIX}/share/${directory}/version:/proc/version"
-	cmdline+=" --bind=\${PREFIX}/tmp:/tmp"
+	cmdline+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
+	cmdline+=" --bind=${HOME}/.${directory}/version:/proc/version"
+	cmdline+=" --bind=${PREFIX}/tmp:/tmp"
 	cmdline+=" /usr/bin/env --ignore-environment"
 	cmdline+=" TERM=\${TERM-xterm-256color}"
 	cmdline+=" /bin/su --login"
