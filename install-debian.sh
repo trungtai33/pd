@@ -89,6 +89,9 @@ done < <(paste <(id -Gn | tr ' ' '\n') <(id -G | tr ' ' '\n'))
 cat <<- EOF > "${HOME}/.${directory}/loadavg"
 	0.35 0.22 0.15 1/575 7767
 	EOF
+ cat <<- EOF > "${HOME}/.${directory}/model"
+	$(getprop ro.product.brand) $(getprop ro.product.model)
+	EOF
 cat <<- EOF > "${HOME}/.${directory}/stat"
 	cpu  265542 13183 24203 611072 152293 68 191340 255 0 0 0
 	cpu0 265542 13183 24203 611072 152293 68 191340 255 0 0 0
@@ -102,6 +105,9 @@ cat <<- EOF > "${HOME}/.${directory}/stat"
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/uptime"
 	11965.80 11411.22
+	EOF
+ cat <<- EOF > "${HOME}/.${directory}/version"
+	Linux version $(uname -r) (proot@android) (gcc version 4.9.0 (GCC)) $(uname -v)
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/vmstat"
 	nr_free_pages 705489
@@ -193,11 +199,8 @@ cat <<- EOF > "${HOME}/.${directory}/vmstat"
 	unevictable_pgs_cleared 0
 	unevictable_pgs_stranded 0
 	EOF
-cat <<- EOF > "${HOME}/.${directory}/model"
-	$(getprop ro.product.brand) $(getprop ro.product.model)
-	EOF
-cat <<- EOF > "${HOME}/.${directory}/version"
-	Linux version $(uname -r) (termux@android) (gcc version 4.9.0 (GCC)) $(uname -v)
+cat <<- EOF > "${HOME}/.${directory}/cap_last_cap"
+	38
 	EOF
 cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	#!/data/data/com.termux/files/usr/bin/bash
@@ -206,6 +209,7 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	cmdline+=" --kernel-release=$(uname -r)"
 	cmdline+=" --kill-on-exit"
 	cmdline+=" --link2symlink"
+ 	cmdline+=" --sysvipc"
 	cmdline+=" --root-id"
 	cmdline+=" --rootfs=${HOME}/.${directory}/rootfs"
 	cmdline+=" --bind=/dev"
@@ -222,17 +226,24 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	if ! cat /proc/loadavg > /dev/null 2>&1; then
 	        cmdline+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
 	fi
-	if ! cat /proc/stat > /dev/null 2>&1; then
+ 	if ! cat /sys/firmware/devicetree/base/model > /dev/null 2>&1; then
+ 	 	cmdline+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
+	fi
+ 	if ! cat /proc/stat > /dev/null 2>&1; then
 	        cmdline+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
 	fi
 	if ! cat /proc/uptime > /dev/null 2>&1; then
 	        cmdline+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
 	fi
+ 	if ! cat /proc/version > /dev/null 2>&1; then
+	        cmdline+=" --bind=${HOME}/.${directory}/version:/proc/version"
+	fi
 	if ! cat /proc/vmstat > /dev/null 2>&1; then
 	        cmdline+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
 	fi
-	cmdline+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
-	cmdline+=" --bind=${HOME}/.${directory}/version:/proc/version"
+ 	if ! cat /proc/sys/kernel/cap_last_cap > /dev/null 2>&1; then
+	        cmdline+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
+	fi
 	cmdline+=" --bind=${PREFIX}/tmp:/tmp"
 	cmdline+=" /usr/bin/env --ignore-environment"
 	cmdline+=" TERM=\${TERM-xterm-256color}"
