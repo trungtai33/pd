@@ -89,7 +89,7 @@ done < <(paste <(id -Gn | tr ' ' '\n') <(id -G | tr ' ' '\n'))
 cat <<- EOF > "${HOME}/.${directory}/loadavg"
 	0.35 0.22 0.15 1/575 7767
 	EOF
- cat <<- EOF > "${HOME}/.${directory}/model"
+cat <<- EOF > "${HOME}/.${directory}/model"
 	$(getprop ro.product.brand) $(getprop ro.product.model)
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/stat"
@@ -106,7 +106,7 @@ cat <<- EOF > "${HOME}/.${directory}/stat"
 cat <<- EOF > "${HOME}/.${directory}/uptime"
 	11965.80 11411.22
 	EOF
- cat <<- EOF > "${HOME}/.${directory}/version"
+cat <<- EOF > "${HOME}/.${directory}/version"
 	Linux version $(uname -r) (proot@android) (gcc version 4.9.0 (GCC)) $(uname -v)
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/vmstat"
