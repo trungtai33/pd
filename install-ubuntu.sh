@@ -6,15 +6,15 @@ fi
 case "$(uname -m)" in
 	aarch64)
 		arch="arm64"
-		multiarch="aarch64-linux-gnu"
+		platform="aarch64-linux-gnu"
 		;;
 	armv7l|armv8l)
 		arch="armhf"
-		multiarch="arm-linux-gnueabihf"
+		platform="arm-linux-gnueabihf"
 		;;
 	x86_64)
 		arch="amd64"
-		multiarch="x86_64-linux-gnu"
+		platform="x86_64-linux-gnu"
 		;;
 	*)
 		printf "\n\e[31mError: Architecture '$(uname -m)' is not supported.\e[0m\n\n"
@@ -55,11 +55,12 @@ if ! proot --link2symlink \
 fi
 rm -f "${tarball}"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/ld.so.preload"
-	/lib/${multiarch}/libgcc_s.so.1
+	/lib/${platform}/libgcc_s.so.1
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/profile.d/config.sh"
 	export LANG="C.UTF-8"
 	export MOZ_FAKE_NO_SANDBOX="1"
+	export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 	export PULSE_SERVER="127.0.0.1"
 	EOF
 rm -f "${HOME}/.${directory}/rootfs/etc/resolv.conf"
@@ -69,8 +70,13 @@ cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/resolv.conf"
 	EOF
 rm -f "${HOME}/.${directory}/rootfs/etc/hosts"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/hosts"
-	127.0.0.1  localhost
-	::1        localhost ip6-localhost ip6-loopback
+	127.0.0.1  localhost.localdomain localhost
+	::1        localhost.localdomain localhost ip6-localhost ip6-loopback
+	fe00::0    ip6-localnet
+	ff00::0    ip6-mcastprefix
+	ff02::1    ip6-allnodes
+	ff02::2    ip6-allrouters
+	ff02::3    ip6-allhosts
 	EOF
 while read groupname groupid; do
 	chmod +w "${HOME}/.${directory}/rootfs/etc/group"
@@ -79,172 +85,268 @@ while read groupname groupid; do
 		EOF
 	chmod +w "${HOME}/.${directory}/rootfs/etc/gshadow"
 	cat <<- EOF >> "${HOME}/.${directory}/rootfs/etc/gshadow"
-		${groupname}:!::
+		${groupname}:*::
 		EOF
 done < <(paste <(id -Gn | tr ' ' '\n') <(id -G | tr ' ' '\n'))
 cat <<- EOF > "${HOME}/.${directory}/loadavg"
-	0.35 0.22 0.15 1/575 7767
+	0.12 0.07 0.02 2/165 765
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/model"
 	$(getprop ro.product.brand) $(getprop ro.product.model)
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/stat"
-	cpu  265542 13183 24203 611072 152293 68 191340 255 0 0 0
-	cpu0 265542 13183 24203 611072 152293 68 191340 255 0 0 0
-	intr 815181 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-	ctxt 90620544
-	btime 163178502
-	processes 25384
+	cpu  1957 0 2877 93280 262 342 254 87 0 0
+	cpu0 31 0 226 12027 82 10 4 9 0 0
+	cpu1 45 0 664 11144 21 263 233 12 0 0
+	cpu2 494 0 537 11283 27 10 3 8 0 0
+	cpu3 359 0 234 11723 24 26 5 7 0 0
+	cpu4 295 0 268 11772 10 12 2 12 0 0
+	cpu5 270 0 251 11833 15 3 1 10 0 0
+	cpu6 430 0 520 11386 30 8 1 12 0 0
+	cpu7 30 0 172 12108 50 8 1 13 0 0
+	intr 127541 38 290 0 0 0 0 4 0 1 0 0 25329 258 0 5777 277 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	ctxt 140223
+	btime 1680020856
+	processes 772
 	procs_running 2
 	procs_blocked 0
-	softirq 1857962 55 2536781 34 1723322 8 2457784 5 1914410
+	softirq 75663 0 5903 6 25375 10774 0 243 11685 0 21677
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/uptime"
-	11965.80 11411.22
+	124.08 932.80
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/version"
-	Linux version $(uname -r) (proot@android) (gcc version 4.9.0 (GCC)) $(uname -v)
+	Linux version $(uname -r) (proot@termux) (gcc version 9.4.0 (GCC)) $(uname -v)
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/vmstat"
-	nr_free_pages 705489
-	nr_alloc_batch 0
-	nr_inactive_anon 1809
-	nr_active_anon 61283
-	nr_inactive_file 69543
-	nr_active_file 58416
-	nr_unevictable 64
-	nr_mlock 64
-	nr_anon_pages 60894
-	nr_mapped 99503
-	nr_file_pages 130218
-	nr_dirty 9
-	nr_writeback 0
-	nr_slab_reclaimable 2283
-	nr_slab_unreclaimable 3714
-	nr_page_table_pages 1911
-	nr_kernel_stack 687
-	nr_unstable 0
+	nr_free_pages 1743136
+	nr_zone_inactive_anon 179281
+	nr_zone_active_anon 7183
+	nr_zone_inactive_file 22858
+	nr_zone_active_file 51328
+	nr_zone_unevictable 642
+	nr_zone_write_pending 0
+	nr_mlock 0
 	nr_bounce 0
-	nr_vmscan_write 0
-	nr_vmscan_immediate_reclaim 0
-	nr_writeback_temp 0
+	nr_zspages 0
+	nr_free_cma 0
+	numa_hit 1259626
+	numa_miss 0
+	numa_foreign 0
+	numa_interleave 720
+	numa_local 1259626
+	numa_other 0
+	nr_inactive_anon 179281
+	nr_active_anon 7183
+	nr_inactive_file 22858
+	nr_active_file 51328
+	nr_unevictable 642
+	nr_slab_reclaimable 8091
+	nr_slab_unreclaimable 7804
 	nr_isolated_anon 0
 	nr_isolated_file 0
-	nr_shmem 2262
-	nr_dirtied 3675
-	nr_written 3665
-	nr_pages_scanned 0
-	workingset_refault 1183
-	workingset_activate 1183
+	workingset_nodes 0
+	workingset_refault_anon 0
+	workingset_refault_file 0
+	workingset_activate_anon 0
+	workingset_activate_file 0
+	workingset_restore_anon 0
+	workingset_restore_file 0
 	workingset_nodereclaim 0
-	nr_anon_transparent_hugepages 0
-	nr_free_cma 0
-	nr_dirty_threshold 21574
-	nr_dirty_background_threshold 5393
-	pgpgin 541367
-	pgpgout 23248
-	pswpin 1927
-	pswpout 2562
-	pgalloc_dma 182
-	pgalloc_normal 76067
-	pgalloc_high 326333
+	nr_anon_pages 7723
+	nr_mapped 8905
+	nr_file_pages 253569
+	nr_dirty 0
+	nr_writeback 0
+	nr_writeback_temp 0
+	nr_shmem 178741
+	nr_shmem_hugepages 0
+	nr_shmem_pmdmapped 0
+	nr_file_hugepages 0
+	nr_file_pmdmapped 0
+	nr_anon_transparent_hugepages 1
+	nr_vmscan_write 0
+	nr_vmscan_immediate_reclaim 0
+	nr_dirtied 0
+	nr_written 0
+	nr_throttled_written 0
+	nr_kernel_misc_reclaimable 0
+	nr_foll_pin_acquired 0
+	nr_foll_pin_released 0
+	nr_kernel_stack 2780
+	nr_page_table_pages 344
+	nr_sec_page_table_pages 0
+	nr_swapcached 0
+	pgpromote_success 0
+	pgpromote_candidate 0
+	nr_dirty_threshold 356564
+	nr_dirty_background_threshold 178064
+	pgpgin 890508
+	pgpgout 0
+	pswpin 0
+	pswpout 0
+	pgalloc_dma 272
+	pgalloc_dma32 261
+	pgalloc_normal 1328079
 	pgalloc_movable 0
-	pgfree 1108260
-	pgactivate 53201
-	pgdeactivate 2592
-	pgfault 420060
-	pgmajfault 4323
-	pgrefill_dma 0
-	pgrefill_normal 2589
-	pgrefill_high 0
-	pgrefill_movable 0
-	pgsteal_kswapd_dma 0
-	pgsteal_kswapd_normal 0
-	pgsteal_kswapd_high 0
-	pgsteal_kswapd_movable 0
-	pgsteal_direct_dma 0
-	pgsteal_direct_normal 1211
-	pgsteal_direct_high 7987
-	pgsteal_direct_movable 0
-	pgscan_kswapd_dma 0
-	pgscan_kswapd_normal 0
-	pgscan_kswapd_high 0
-	pgscan_kswapd_movable 0
-	pgscan_direct_dma 0
-	pgscan_direct_normal 4172
-	pgscan_direct_high 25365
-	pgscan_direct_movable 0
+	pgalloc_device 0
+	allocstall_dma 0
+	allocstall_dma32 0
+	allocstall_normal 0
+	allocstall_movable 0
+	allocstall_device 0
+	pgskip_dma 0
+	pgskip_dma32 0
+	pgskip_normal 0
+	pgskip_movable 0
+	pgskip_device 0
+	pgfree 3077011
+	pgactivate 0
+	pgdeactivate 0
+	pglazyfree 0
+	pgfault 176973
+	pgmajfault 488
+	pglazyfreed 0
+	pgrefill 0
+	pgreuse 19230
+	pgsteal_kswapd 0
+	pgsteal_direct 0
+	pgsteal_khugepaged 0
+	pgdemote_kswapd 0
+	pgdemote_direct 0
+	pgdemote_khugepaged 0
+	pgscan_kswapd 0
+	pgscan_direct 0
+	pgscan_khugepaged 0
 	pgscan_direct_throttle 0
+	pgscan_anon 0
+	pgscan_file 0
+	pgsteal_anon 0
+	pgsteal_file 0
+	zone_reclaim_failed 0
 	pginodesteal 0
-	slabs_scanned 9728
+	slabs_scanned 0
 	kswapd_inodesteal 0
 	kswapd_low_wmark_hit_quickly 0
 	kswapd_high_wmark_hit_quickly 0
-	pageoutrun 1
-	allocstall 189
-	pgrotated 7
+	pageoutrun 0
+	pgrotated 0
 	drop_pagecache 0
 	drop_slab 0
+	oom_kill 0
+	numa_pte_updates 0
+	numa_huge_pte_updates 0
+	numa_hint_faults 0
+	numa_hint_faults_local 0
+	numa_pages_migrated 0
+	pgmigrate_success 0
+	pgmigrate_fail 0
+	thp_migration_success 0
+	thp_migration_fail 0
+	thp_migration_split 0
+	compact_migrate_scanned 0
+	compact_free_scanned 0
+	compact_isolated 0
+	compact_stall 0
+	compact_fail 0
+	compact_success 0
+	compact_daemon_wake 0
+	compact_daemon_migrate_scanned 0
+	compact_daemon_free_scanned 0
 	htlb_buddy_alloc_success 0
 	htlb_buddy_alloc_fail 0
-	unevictable_pgs_culled 64
+	cma_alloc_success 0
+	cma_alloc_fail 0
+	unevictable_pgs_culled 27002
 	unevictable_pgs_scanned 0
-	unevictable_pgs_rescued 0
-	unevictable_pgs_mlocked 64
-	unevictable_pgs_munlocked 0
+	unevictable_pgs_rescued 744
+	unevictable_pgs_mlocked 744
+	unevictable_pgs_munlocked 744
 	unevictable_pgs_cleared 0
 	unevictable_pgs_stranded 0
+	thp_fault_alloc 13
+	thp_fault_fallback 0
+	thp_fault_fallback_charge 0
+	thp_collapse_alloc 4
+	thp_collapse_alloc_failed 0
+	thp_file_alloc 0
+	thp_file_fallback 0
+	thp_file_fallback_charge 0
+	thp_file_mapped 0
+	thp_split_page 0
+	thp_split_page_failed 0
+	thp_deferred_split_page 1
+	thp_split_pmd 1
+	thp_scan_exceed_none_pte 0
+	thp_scan_exceed_swap_pte 0
+	thp_scan_exceed_share_pte 0
+	thp_split_pud 0
+	thp_zero_page_alloc 0
+	thp_zero_page_alloc_failed 0
+	thp_swpout 0
+	thp_swpout_fallback 0
+	balloon_inflate 0
+	balloon_deflate 0
+	balloon_migrate 0
+	swap_ra 0
+	swap_ra_hit 0
+	ksm_swpin_copy 0
+	cow_ksm 0
+	zswpin 0
+	zswpout 0
+	direct_map_level2_splits 29
+	direct_map_level3_splits 0
+	nr_unstable 0
 	EOF
 cat <<- EOF > "${HOME}/.${directory}/cap_last_cap"
-	38
+	40
 	EOF
 cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	#!/data/data/com.termux/files/usr/bin/bash
 	unset LD_PRELOAD
-	cmdline="proot"
-	cmdline+=" --kernel-release=$(uname -r)"
-	cmdline+=" --kill-on-exit"
-	cmdline+=" --link2symlink"
-	cmdline+=" --sysvipc"
-	cmdline+=" --root-id"
-	cmdline+=" --rootfs=${HOME}/.${directory}/rootfs"
-	cmdline+=" --bind=/dev"
-	cmdline+=" --bind=/dev/urandom:/dev/random"
-	cmdline+=" --bind=/proc"
-	cmdline+=" --bind=/proc/self/fd:/dev/fd"
-	cmdline+=" --bind=/proc/self/fd/0:/dev/stdin"
-	cmdline+=" --bind=/proc/self/fd/1:/dev/stdout"
-	cmdline+=" --bind=/proc/self/fd/2:/dev/stderr"
-	cmdline+=" --bind=/sys"
-	cmdline+=" --bind=/storage/emulated/0:/sdcard"
-	cmdline+=" --bind=/data/data/com.termux"
-	cmdline+=" --bind=${HOME}/.${directory}/rootfs/tmp:/dev/shm"
+	command="proot"
+	command+=" --kernel-release=$(uname -r)"
+	command+=" --kill-on-exit"
+	command+=" --link2symlink"
+	command+=" --root-id"
+	command+=" --rootfs=${HOME}/.${directory}/rootfs"
+	command+=" --bind=/dev"
+	command+=" --bind=/dev/urandom:/dev/random"
+	command+=" --bind=/proc"
+	command+=" --bind=/proc/self/fd:/dev/fd"
+	command+=" --bind=/proc/self/fd/0:/dev/stdin"
+	command+=" --bind=/proc/self/fd/1:/dev/stdout"
+	command+=" --bind=/proc/self/fd/2:/dev/stderr"
+	command+=" --bind=/sys"
+	command+=" --bind=/storage/emulated/0:/sdcard"
+	command+=" --bind=/data/data/com.termux"
+	command+=" --bind=${HOME}/.${directory}/rootfs/tmp:/dev/shm"
 	if ! cat /proc/loadavg > /dev/null 2>&1; then
-	        cmdline+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
+	        command+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
 	fi
- 	if ! cat /sys/firmware/devicetree/base/model > /dev/null 2>&1; then
- 	 	cmdline+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
+	if ! cat /sys/firmware/devicetree/base/model > /dev/null 2>&1; then
+	        command+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
 	fi
- 	if ! cat /proc/stat > /dev/null 2>&1; then
-	        cmdline+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
+	if ! cat /proc/stat > /dev/null 2>&1; then
+	        command+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
 	fi
 	if ! cat /proc/uptime > /dev/null 2>&1; then
-	        cmdline+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
+	        command+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
 	fi
  	if ! cat /proc/version > /dev/null 2>&1; then
-	        cmdline+=" --bind=${HOME}/.${directory}/version:/proc/version"
+	        command+=" --bind=${HOME}/.${directory}/version:/proc/version"
 	fi
 	if ! cat /proc/vmstat > /dev/null 2>&1; then
-	        cmdline+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
+	        command+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
 	fi
  	if ! cat /proc/sys/kernel/cap_last_cap > /dev/null 2>&1; then
-	        cmdline+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
+	        command+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
 	fi
-	cmdline+=" --bind=${PREFIX}/tmp:/tmp"
-	cmdline+=" /usr/bin/env --ignore-environment"
-	cmdline+=" TERM=\${TERM-xterm-256color}"
-	cmdline+=" /bin/su --login"
-	cmd="\$@"; [ -z "\$1" ] && exec \${cmdline} || \${cmdline} "\${cmd}"
+	command+=" --bind=${PREFIX}/tmp:/tmp"
+	command+=" /usr/bin/env --ignore-environment"
+	command+=" TERM=\${TERM-xterm-256color}"
+	command+=" /bin/su --login"
+	exec="\$@"; [ -z "\$1" ] && exec \${command} || \${command} "\${exec}"
 	EOF
 chmod +x "${PREFIX}/bin/start-${directory}"
 printf "\e[34m[\e[32m*\e[34m]\e[36m Installation finished.\e[0m\n\n"
