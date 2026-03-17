@@ -7,7 +7,7 @@ if [ -z "$(command -v dialog)" ]; then
 	printf "\n\e[31mError: 'dialog' is not installed.\e[0m\n\n"
 	exit 1
 fi
-version=$(dialog --title "Debian Uninstaller" --inputbox "Enter the version code name:" 8 40 2>&1 > /dev/tty); clear
+version=$(dialog --title "Debian Uninstaller" --inputbox "Enter the version codename:" 8 40 2>&1 > /dev/tty); clear
 if [ -z "${version}" ]; then
 	exit 1
 fi
