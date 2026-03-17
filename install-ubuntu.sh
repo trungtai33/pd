@@ -27,7 +27,7 @@ for i in curl dialog proot; do
 		exit 1
 	fi
 done
-version=$(dialog --title "Ubuntu Installer" --inputbox "Enter the version code name:" 8 60 2>&1 > /dev/tty); clear
+version=$(dialog --title "Ubuntu Installer" --inputbox "Enter the version code name:" 8 40 2>&1 > /dev/tty); clear
 if [ -z "${version}" ]; then
 	exit 1
 fi
@@ -116,7 +116,7 @@ cat <<- EOF > "${HOME}/.${directory}/uptime"
 	124.08 932.80
 EOF
 cat <<- EOF > "${HOME}/.${directory}/version"
-	Linux version $(uname -r) (proot@termux) (gcc version 9.4.0 (GCC)) $(uname -v)
+	Linux version $(uname -r) (proot@termux) (gcc (GCC) 12.3.0, GNU ld (GNU Binutils) 2.38) $(uname -v)
 EOF
 cat <<- EOF > "${HOME}/.${directory}/vmstat"
 	nr_free_pages 1743136
