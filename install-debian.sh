@@ -326,25 +326,25 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	command+=" --bind=/data/data/com.termux"
 	command+=" --bind=${HOME}/.${directory}/rootfs/tmp:/dev/shm"
 	if ! cat /proc/loadavg > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
+	    command+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
 	fi
 	if ! cat /sys/firmware/devicetree/base/model > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
+	    command+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
 	fi
 	if ! cat /proc/stat > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
+	    command+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
 	fi
 	if ! cat /proc/uptime > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
+	    command+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
 	fi
  	if ! cat /proc/version > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/version:/proc/version"
+	    command+=" --bind=${HOME}/.${directory}/version:/proc/version"
 	fi
 	if ! cat /proc/vmstat > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
+	    command+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
 	fi
  	if ! cat /proc/sys/kernel/cap_last_cap > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
+	    command+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
 	fi
 	command+=" --bind=${PREFIX}/tmp:/tmp"
 	command+=" /usr/bin/env --ignore-environment"
