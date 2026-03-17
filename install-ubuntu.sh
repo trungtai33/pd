@@ -58,7 +58,7 @@ cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/ld.so.preload"
 	/lib/${platform}/libgcc_s.so.1
 EOF
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/environment"
-	export LANG="en_US.UTF-8"
+	export LANG="C.UTF-8"
 	export MOZ_FAKE_NO_SANDBOX="1"
 	export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 	export PULSE_SERVER="127.0.0.1"
