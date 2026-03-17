@@ -31,7 +31,7 @@ for i in curl dialog proot; do
 		exit 1
 	fi
 done
-version=$(dialog --title "Debian Installer" --inputbox "Enter the version code name:" 8 40 2>&1 > /dev/tty); clear
+version=$(dialog --title "Debian Installer" --inputbox "Enter the LTS version codename:" 8 40 2>&1 > /dev/tty); clear
 if [ -z "${version}" ]; then
 	exit 1
 fi
