@@ -333,13 +333,13 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	if ! cat /proc/uptime > /dev/null 2>&1; then
 	    command+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
 	fi
- 	if ! cat /proc/version > /dev/null 2>&1; then
+	if ! cat /proc/version > /dev/null 2>&1; then
 	    command+=" --bind=${HOME}/.${directory}/version:/proc/version"
 	fi
 	if ! cat /proc/vmstat > /dev/null 2>&1; then
 	    command+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
 	fi
- 	if ! cat /proc/sys/kernel/cap_last_cap > /dev/null 2>&1; then
+	if ! cat /proc/sys/kernel/cap_last_cap > /dev/null 2>&1; then
 	    command+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
 	fi
 	command+=" --bind=${PREFIX}/tmp:/tmp"
