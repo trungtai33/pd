@@ -27,7 +27,7 @@ for i in curl dialog proot; do
 		exit 1
 	fi
 done
-version=$(dialog --title "Ubuntu Installer" --inputbox "Enter the version code name:" 8 50 2>&1 > /dev/tty); clear
+version=$(dialog --title "Ubuntu Installer" --inputbox "Enter the version code name:" 8 60 2>&1 > /dev/tty); clear
 if [ -z "${version}" ]; then
 	exit 1
 fi
@@ -41,7 +41,7 @@ mkdir -p "${HOME}/.${directory}/rootfs"
 tarball="${HOME}/.${directory}/rootfs.tar.gz"
 printf "\n\e[34m[\e[32m*\e[34m]\e[36m Downloading ${distribution}, please wait...\e[34m\n\n"
 if ! curl --location --output "${tarball}" \
-	"https://partner-images.canonical.com/core/${version}/current/ubuntu-${version}-core-cloudimg-${arch}-root.tar.gz"; then
+	"https://cdimages.ubuntu.com/ubuntu-base/${version}/daily/current/${version}-base-${arch}.tar.gz"; then
 	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
 	rm -rf "${HOME}/.${directory}"
 	exit 1
@@ -56,18 +56,18 @@ fi
 rm -f "${tarball}"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/ld.so.preload"
 	/lib/${platform}/libgcc_s.so.1
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/profile.d/config.sh"
 	export LANG="C.UTF-8"
 	export MOZ_FAKE_NO_SANDBOX="1"
 	export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 	export PULSE_SERVER="127.0.0.1"
-	EOF
+EOF
 rm -f "${HOME}/.${directory}/rootfs/etc/resolv.conf"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/resolv.conf"
 	nameserver 8.8.8.8
 	nameserver 8.8.4.4
-	EOF
+EOF
 rm -f "${HOME}/.${directory}/rootfs/etc/hosts"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/hosts"
 	127.0.0.1  localhost.localdomain localhost
@@ -77,23 +77,23 @@ cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/hosts"
 	ff02::1    ip6-allnodes
 	ff02::2    ip6-allrouters
 	ff02::3    ip6-allhosts
-	EOF
+EOF
 while read groupname groupid; do
 	chmod +w "${HOME}/.${directory}/rootfs/etc/group"
 	cat <<- EOF >> "${HOME}/.${directory}/rootfs/etc/group"
 		${groupname}:x:${groupid}:
-		EOF
+	EOF
 	chmod +w "${HOME}/.${directory}/rootfs/etc/gshadow"
 	cat <<- EOF >> "${HOME}/.${directory}/rootfs/etc/gshadow"
 		${groupname}:*::
-		EOF
+	EOF
 done < <(paste <(id -Gn | tr ' ' '\n') <(id -G | tr ' ' '\n'))
 cat <<- EOF > "${HOME}/.${directory}/loadavg"
 	0.12 0.07 0.02 2/165 765
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/model"
 	$(getprop ro.product.brand) $(getprop ro.product.model)
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/stat"
 	cpu  1957 0 2877 93280 262 342 254 87 0 0
 	cpu0 31 0 226 12027 82 10 4 9 0 0
@@ -111,13 +111,13 @@ cat <<- EOF > "${HOME}/.${directory}/stat"
 	procs_running 2
 	procs_blocked 0
 	softirq 75663 0 5903 6 25375 10774 0 243 11685 0 21677
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/uptime"
 	124.08 932.80
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/version"
 	Linux version $(uname -r) (proot@termux) (gcc version 9.4.0 (GCC)) $(uname -v)
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/vmstat"
 	nr_free_pages 1743136
 	nr_zone_inactive_anon 179281
@@ -297,10 +297,10 @@ cat <<- EOF > "${HOME}/.${directory}/vmstat"
 	direct_map_level2_splits 29
 	direct_map_level3_splits 0
 	nr_unstable 0
-	EOF
+EOF
 cat <<- EOF > "${HOME}/.${directory}/cap_last_cap"
 	40
-	EOF
+EOF
 cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	#!/data/data/com.termux/files/usr/bin/bash
 	unset LD_PRELOAD
@@ -322,32 +322,32 @@ cat <<- EOF > "${PREFIX}/bin/start-${directory}"
 	command+=" --bind=/data/data/com.termux"
 	command+=" --bind=${HOME}/.${directory}/rootfs/tmp:/dev/shm"
 	if ! cat /proc/loadavg > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
+	    command+=" --bind=${HOME}/.${directory}/loadavg:/proc/loadavg"
 	fi
 	if ! cat /sys/firmware/devicetree/base/model > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
+	    command+=" --bind=${HOME}/.${directory}/model:/sys/firmware/devicetree/base/model"
 	fi
 	if ! cat /proc/stat > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
+	    command+=" --bind=${HOME}/.${directory}/stat:/proc/stat"
 	fi
 	if ! cat /proc/uptime > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
+	    command+=" --bind=${HOME}/.${directory}/uptime:/proc/uptime"
 	fi
  	if ! cat /proc/version > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/version:/proc/version"
+	    command+=" --bind=${HOME}/.${directory}/version:/proc/version"
 	fi
 	if ! cat /proc/vmstat > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
+	    command+=" --bind=${HOME}/.${directory}/vmstat:/proc/vmstat"
 	fi
  	if ! cat /proc/sys/kernel/cap_last_cap > /dev/null 2>&1; then
-	        command+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
+	    command+=" --bind=${HOME}/.${directory}/cap_last_cap:/proc/sys/kernel/cap_last_cap"
 	fi
 	command+=" --bind=${PREFIX}/tmp:/tmp"
 	command+=" /usr/bin/env --ignore-environment"
 	command+=" TERM=\${TERM-xterm-256color}"
 	command+=" /bin/su --login"
 	exec="\$@"; [ -z "\$1" ] && exec \${command} || \${command} "\${exec}"
-	EOF
+EOF
 chmod +x "${PREFIX}/bin/start-${directory}"
 printf "\e[34m[\e[32m*\e[34m]\e[36m Installation finished.\e[0m\n\n"
 printf "\e[36mNow run '\e[32mstart-${directory}\e[36m' to launch.\e[0m\n\n"
