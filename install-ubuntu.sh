@@ -41,7 +41,7 @@ mkdir -p "${HOME}/.${directory}/rootfs"
 tarball="${HOME}/.${directory}/rootfs.tar.gz"
 printf "\n\e[34m[\e[32m*\e[34m]\e[36m Downloading ${distribution}, please wait...\e[34m\n\n"
 if ! curl --location --output "${tarball}" \
-	"https://cdimages.ubuntu.com/ubuntu-base/${version}/daily/current/${version}-base-${arch}.tar.gz"; then
+	"https://cdimage.ubuntu.com/ubuntu-base/${version}/daily/current/${version}-base-${arch}.tar.gz"; then
 	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
 	rm -rf "${HOME}/.${directory}"
 	exit 1
