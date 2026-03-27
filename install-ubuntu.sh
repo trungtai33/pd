@@ -57,6 +57,7 @@ rm -f "${tarball}"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/ld.so.preload"
 	/lib/${platform}/libgcc_s.so.1
 EOF
+rm -f "${HOME}/.${directory}/rootfs/etc/environment"
 cat <<- EOF > "${HOME}/.${directory}/rootfs/etc/environment"
 	export LANG="C.UTF-8"
 	export MOZ_FAKE_NO_SANDBOX="1"
