@@ -42,15 +42,15 @@ tarball="${HOME}/.${directory}/rootfs.tar.gz"
 printf "\n\e[34m[\e[32m*\e[34m]\e[36m Downloading ${distribution}, please wait...\e[34m\n\n"
 if ! curl --location --output "${tarball}" \
 	"https://cdimage.ubuntu.com/ubuntu-base/${version}/daily/current/${version}-base-${arch}.tar.gz"; then
-	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
 	rm -rf "${HOME}/.${directory}"
+	printf "\e[0m\n\e[34m[\e[31m!\e[34m]\e[31m Download failed, please check your network connection.\e[0m\n\n"
 	exit 1
 fi
 printf "\e[0m\n\e[34m[\e[32m*\e[34m]\e[36m Installing ${distribution}, please wait...\e[0m\n"
 if ! proot --link2symlink \
 	tar -xf "${tarball}" --directory="${HOME}/.${directory}/rootfs" --exclude='dev' > /dev/null 2>&1; then
-	printf "\e[34m[\e[31m!\e[34m]\e[31m Installation failed, please check version codename.\e[0m\n\n"
 	rm -rf "${HOME}/.${directory}"
+	printf "\e[34m[\e[31m!\e[34m]\e[31m Installation failed, please check version codename.\e[0m\n\n"
 	exit 1
 fi
 rm -f "${tarball}"
